@@ -1,2 +1,2 @@
 # PlantCare
-An automatic plant watering system with display of humidity and temperature. 
+An automatic plant watering system that displays the moisture of the soil and the temperature of room. 
