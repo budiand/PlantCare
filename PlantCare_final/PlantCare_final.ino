@@ -52,6 +52,7 @@ void setup() {
   lcd.backlight();
   lcd.createChar(0, circle);
   lcd.createChar(1, plant);
+  lcd.createChar(2, heart);
   lcd.clear();
 
   // sd
@@ -68,11 +69,34 @@ void setup() {
 
 void loop() {
 
-  Serial.println(moisture_value);
-  Serial.println(temp_value);
+  // stop from reading humidity data
+  if(digitalRead(moisture_sensor_vcc_pin) == HIGH) {
+    moisture_start = millis();
+    moisture_value = analogRead(moisture_sensor_data_pin);
+    digitalWrite(moisture_sensor_vcc_pin, LOW);
+  }
+
+  moisture_finished = millis();
+  moisture_elapsed_time = moisture_finished - moisture_start;
+
+  // after an hour start the humidity sensor
+  if(moisture_elapsed_time >= 3600000) {
+    digitalWrite(moisture_sensor_vcc_pin, HIGH);
+    moisture_value = analogRead(moisture_sensor_data_pin);
+    // delay for stability
+    delay(2000);
+    moisture_value = analogRead(moisture_sensor_data_pin);
+  }
+
+    // get temperature
+  temperature.requestTemperatures();
+  temp_value = temperature.getTempCByIndex(0);
+
+  // print to LCD display
+  print_lcd_message(lcd, moisture_value, temp_value);
 
   // check humidity and start pump if needed
-  if(moisture_value > 900) {
+  if(moisture_value > 800) {
     digitalWrite(INT0_PIN, LOW);
     delay(1);
     digitalWrite(INT0_PIN, HIGH);
@@ -87,32 +111,6 @@ void loop() {
     SD_STOP = millis();
     SD_TIME = SD_STOP - SD_START;
     write_time(SD_START, SD_STOP, SD_TIME, file);
-  }
-
-  // get temperature
-  temperature.requestTemperatures();
-  temp_value = temperature.getTempCByIndex(0);
-
-  // print to LCD display
-  print_lcd_message(lcd, moisture_value, temp_value);
-
-  // stop from reading humidity data
-  if(digitalRead(moisture_sensor_vcc_pin) == HIGH) {
-    moisture_start = millis();
-    moisture_value = analogRead(moisture_sensor_data_pin);
-    digitalWrite(moisture_sensor_vcc_pin, LOW);
-  }
-
-  moisture_finished = millis();
-  moisture_elapsed_time = moisture_finished - moisture_start;
-
-  // after an hour start the humidity sensor
-  if(moisture_elapsed_time >= 36000000) {
-    digitalWrite(moisture_sensor_vcc_pin, HIGH);
-    moisture_value = analogRead(moisture_sensor_data_pin);
-    // delay for stability
-    delay(2000);
-    moisture_value = analogRead(moisture_sensor_data_pin);
   }
 }
 
