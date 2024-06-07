@@ -19,13 +19,13 @@
       lcd.print(moisture_value);
       lcd.print(")");
     }
-    else if(moisture_value >=350 && moisture_value <=850) {
+    else if(moisture_value >=350 && moisture_value <=800) {
       lcd.print("MODERATE");
       lcd.print("(");
       lcd.print(moisture_value);
       lcd.print(")");
     }
-    else if(moisture_value > 850) {
+    else if(moisture_value > 800) {
       lcd.print("LOW");
       lcd.print("(");
       lcd.print(moisture_value);
